@@ -30,7 +30,6 @@
 			this.addChild(circle);
 		}
 
-
 		// 発射する
 		createjs.Tween.get(this)
 			.wait(1000)

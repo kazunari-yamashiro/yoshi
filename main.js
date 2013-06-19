@@ -100,6 +100,53 @@ function downloadCompleted() {
 	createjs.Ticker.addListener(window);
 	createjs.Ticker.useRAF = true;
 	//createjs.Ticker.setFPS(60);
+
+
+
+	// ----------------------------
+	// Effects
+
+	// クリックでくっついてくる様に見える
+	var blurCircle  = new Effects("BlurredCircle", 150, 150, 60, "#0ff");
+	stage.addChild(blurCircle);
+
+	var myCircle = new createjs.Container();
+
+	// ただのぼかし丸
+	var tweenCircle = new Effects("BounceBlurredCircle", 0, -50, 100, "#0f0");
+	//stage.addChild(tweenCircle);
+	var tweenCircle2 = new Effects("BounceBlurredCircle", 50, 50, 100, "#00f");
+	//stage.addChild(tweenCircle2);
+	var tweenCircle3 = new Effects("BounceBlurredCircle", -50, 50, 100, "#f00");
+	//stage.addChild(tweenCircle3);
+
+	myCircle.addChild(tweenCircle);
+	myCircle.addChild(tweenCircle2);
+	myCircle.addChild(tweenCircle3);
+
+	stage.addChild(myCircle);
+
+	myCircle.x = 300;
+	myCircle.y = 300;
+
+	var tween = createjs.Tween.get(myCircle, {loop:true})
+		.to({rotation: -360}, 2500, createjs.Ease.linear);
+
+	//tween.wait(1000);
+	//tween.to({scaleX: 2, scaleY: 2}, 1000, createjs.Ease.linear);
+
+	// ただの丸
+	var circle = new Effects("Circle", 500, 100, 60, "#00F");
+	stage.addChild(circle);
+
+	// 星の作成
+	// x, y, radius, color, sharp_num, 窪み具合
+	var star = new Effects("Star", 500, 400, 50, "#f00", 5, 2);
+	stage.addChild(star);
+
+	// 魔方陣
+	var magicSquare = new Effects("MagicSquare", 700, 400, 50, "#ff0", 5, 2);
+	stage.addChild(magicSquare);
 }
 
 

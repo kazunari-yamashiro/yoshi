@@ -15,7 +15,7 @@ function ContentManager()
 	}
 
 	this.loadAllImages = function() {
-		this.imgPlayer.src = "YoshiAndMarioSMA3.gif";
+		this.imgPlayer.src = "img/YoshiAndMarioSMA3.gif";
 		this.imgPlayer.onload = loadedHandler;
 		this.imgPlayer.onerror = errorHandler;
 		this.imgExit.src = "img/Exit.png";
@@ -38,6 +38,6 @@ function ContentManager()
 	}
 
 	function errorHandler() {
-		console.log("shit, error occurred");
+		console.log("Error occurred");
 	}
 }

@@ -91,7 +91,7 @@
 	}
 	function createExit(x, y)
 	{
-		goalPole = new createjs.Bitmap("img/Exit.png");
+		goalPole = new createjs.Bitmap(contentManager.imgExit);
 		goalPole.x = x;
 		goalPole.y = y;
 		stage.addChild(goalPole);

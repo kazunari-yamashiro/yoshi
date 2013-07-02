@@ -8,34 +8,19 @@
 
 (function (window) {
 
-	// Player のグローバルプロパティ
-	// ※ これはおそらく何の意味もない感じの変数たち 
-
-	var isIdle;        // 静止状態かどうか
-	var direction;     // 右方向か(1)、左方向か(-1);
-	var vX;            // x のベクトル(?)
-	var vY;            // y のベクトル(Jump 用)
-	var timeMoveStart; // 一定時間後に走るスピードをアップさせる為
-	var player_width;
-	var player_height;
-	var isJumping;     // ジャンプ中は true;
-	var isOnLand;      // 地上にいるかどうか
-	var y_prev;        // 前回のy の座標を保持（ジャンプ用）
-	var isRunning;
-
 	// new されたときに呼ばれる
-	function Player(playerImage, stage_width) {
-		this.initialize(playerImage, stage_width);
+	function Player(playerImage, physics) {
+		this.initialize(playerImage, physics);
 	}
 
+	// 継承関係？
 	Player.prototype = new createjs.BitmapAnimation();
-
 	Player.prototype.BitmapAnimation_initialize = Player.prototype.initialize;
 
 
 	// --- ----------- --- //
 	// --- initializer --- //
-	Player.prototype.initialize = function(playerImage, stage_width) {
+	Player.prototype.initialize = function(playerImage, physics) {
 
 		this.isIdle = true;
 		this.direction = 1;
@@ -46,6 +31,7 @@
 		this.isOnLand = true;
 		this.isRunning = false;
 		this.isDied = false;
+		this.physics = physics;
 		
 		this.isWalkingRight = false;
 		this.isWalkingLeft  = false;
@@ -112,24 +98,16 @@
 		createjs.SpriteSheetUtils.addFlippedFrames(spriteSheet, true, false, false);
 	
 		// create a BitmapAnimation instance to display and play back the sprite sheet:
-		/*
-		bmpAnimation = new createjs.BitmapAnimation(spriteSheet);
-		bmpAnimation.gotoAndPlay("stand");
-	
-		bmpAnimation.name = "yoshi";
-		bmpAnimation.direction = 90;
-		bmpAnimation.vX = 0;
-		bmpAnimation.x  = 16;
-		bmpAnimation.y = 32;
-	
-		bmpAnimation.currentFrame = 0;
-		//stage.addChild(bmpAnimation);
-		*/
-		// 上のコメントアウトの部分の初期化の部分を以下で行う？
 		this.BitmapAnimation_initialize(spriteSheet);
 	}
 
-	// どこからかプレイヤーが地面についた時点で呼ぶ
+
+
+
+
+	// --- プレイヤー操作 --- //
+
+	// プレイヤーが地面についた時点で呼ぶ
 	Player.prototype.onLand = function() {
 		if(!this.isOnLand) {
 			// ジャンプ終了後
@@ -152,108 +130,95 @@
 			this.isJumping   = false;
 		}
 	}
-
-	
-	// Frame毎に呼ばれる
-	// ここで位置をプレイヤーの位置を変更する
-	Player.prototype.tick = function() {
-		// 死んでると何も操作させない
-		if(this.isDied) {
-			return;
-		}
-
-
-		// 静止状態でなければ direction の方向へ動かす
-		if(!this.isIdle) {
-			// スタートした時間を取得
-			if(!this.timeStartMove) { this.timeStartMove = now(); }
-			// 経過時間を取得
-			var elapsed = now() - this.timeStartMove;
-
-			// 壁に接触していると移動はさせない:
-			if(this.x <= (this.player_width / 2)) {
-				this.x = this.player_width / 2;
-			} else if(this.x >= FIELD_WIDTH - (this.player_width * 0.5)) {
-				this.x = FIELD_WIDTH - (this.player_width * 0.5);
+	Player.prototype.jump = function() {
+		if(!this.isJumping) {
+			if(this.direction > 0) {
+				this.gotoAndPlay("jump");
 			} else {
-
-				// 壁に接触していないときは移動する
-				if(elapsed > 900) this.isRunning = true;
-
-				if(this.isRunning) {
-
-					// 連続して走っていたらスピードアップ
-					this.x += (this.vX * this.direction) + (4 * this.direction);
-
-				} else {
-					this.x += this.vX * this.direction;
-				}
-
+				this.gotoAndPlay("jump_h");
 			}
-		}
-		// 移動が終了したとき
-		else {
-			this.isRunning = false;
-			this.timeStartMove = null;
-			// 壁にめり込んでいる分を戻す
-			// がくがくするのを抑える為にこうしている
-			// もっといい計算方法が欲しい・・・
-			if(this.x <= (this.player_width / 2)) {
-				this.x = this.player_width / 2 + 0.1;
-			} else if(this.x >= FIELD_WIDTH - (this.player_width + 0.5)) {
-				this.x = FIELD_WIDTH - (this.player_width * 0.5) - 0.1;
-			}
-		}
-
-		// ジャンプの処理
-		if(this.isJumping) {
-			var GROUND = 483;
-			var f;
-			if(!this.stopJumping) {
-				f = this.isOnLand ? 20 : -2;
-			} else {
-				f = -2;
-				if(this.y_prev > this.y) {
-					this.y_prev = this.y;	
-				}
-			}
-
-			// 前回の座標を保持
-			var y_temp = this.y;
-			
-			// 最初の座標をリンクさせる
-			if(!this.y_prev) { this.y_prev = this.y; }
-
-			this.y -= (this.y_prev - this.y) + f;
-			
-			this.y_prev = y_temp;
 			this.isOnLand = false;
-
-			// ジャンプ終了後
-			if(this.isOnLand) {
-				if(this.direction > 0) {
-					if(this.isRunning) {
-						this.gotoAndPlay("run");
-					} else {
-						this.gotoAndPlay("stand");
-					}
-				} else {
-					if(this.isRunning) {
-						this.gotoAndPlay("run_h");
-					} else {
-						this.gotoAndPlay("stand_h");
-					}
-				}
-				this.y = 483;
-				this.isOnLand = true;
-				this.y_prev = null;
-				this.stopJumping = false;
-				this.isJumping   = false;
-			}
+			this.isJumping = true;
+			this.physics.jump();
 		}
 	}
-	
-	// たぶんグローバルオブジェクトに代入
+	Player.prototype.runRight = function() {
+		if( this.isIdle ) {
+			if ( !this.isJumping ) {
+				this.gotoAndPlay("run");
+			}
+			
+			Yoshi.isRunning = true;
+			Yoshi.direction = 1;
+			Yoshi.isIdle = false;
+			Yoshi.isWalkingRight = true;
+			Yoshi.isStop = false;
+
+		}
+	}
+	Player.prototype.runLeft = function() {
+		if(this.isIdle) {
+			if(!this.isJumping) {
+				this.gotoAndPlay("run_h");
+			}
+			this.isRunning = true;
+			this.direction = -1;
+			this.isIdle = false;
+			this.isWalkingLeft = true;
+			this.isStop = false;
+
+		}
+
+	}
+	Player.prototype.stopRunning = function() {
+			this.isIdle = true;
+			if(this.direction > 0) {
+				this.gotoAndPlay("stand");
+			} else {
+				this.gotoAndPlay("stand_h");
+			}
+			this.isRunning = false;
+			this.isWalkingLeft = false;
+			this.isWalkingRight = false;
+			this.isStop = true;
+			this.physics.stop();
+	}
+	Player.prototype.goal = function() {
+		if(!this.isStop) {
+			if(this.direction > 0) {
+				this.gotoAndPlay("stand");
+			} else {
+				this.gotoAndPlay("stand_h");
+			}
+		}
+		this.isWalkingLeft = false;
+		this.isWalkingRight = false;
+		this.isStop = true;
+		this.isDied = true;
+		this.physics.stop();
+	}
+	Player.prototype.fail = function() {
+		this.isWalkingLeft = false;
+		this.isWalkingRight = false;
+		this.isStop = true;
+		this.isDied = true;
+		if(this.direction > 0) {
+			this.gotoAndPlay("stand");
+		} else {
+			this.gotoAndPlay("stand_h");
+		}
+		this.physics.stop();
+	}
+
+
+	Player.prototype.tick = function() {
+		if(this.isWalkingLeft) {
+			this.physics.moveLeft();
+		} else if(this.isWalkingRight) {
+			this.physics.moveRight();
+		}
+	}
+
 	window.Player = Player;
 }) (window);
 

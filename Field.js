@@ -2,7 +2,6 @@
 	// 継承する
 	Field.prototype = new createjs.Container();
 
-
 	// main method
 	function Field(stage, physics, field_number) 
 	{
@@ -89,6 +88,13 @@
 		bmp.x = (this.stage.x - (FIELD_WIDTH / 2)) * -1;
 		bmp.y = 0;
 		this.stage.addChild(bmp);
+	}
+	function createExit(x, y)
+	{
+		goalPole = new createjs.Bitmap("img/Exit.png");
+		goalPole.x = x;
+		goalPole.y = y;
+		stage.addChild(goalPole);
 	}
 
 	window.Field = Field;

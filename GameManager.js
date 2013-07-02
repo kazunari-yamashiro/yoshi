@@ -12,10 +12,6 @@
 		// 物理世界の作成		
 		this.physics = new Physics();		
 		this.physics.setup();
-
-		// フィールドの作成
-		//this.field = new Field(stage, this.physics, 1);
-		//stage.addChild(this.field);
 	}
 
 
@@ -27,7 +23,7 @@
 		this.stage.addChild(this.field);
 
 		// Player のオブジェクトを作成
-		this.player = new Player(contentManager.imgPlayer, FIELD_WIDTH);
+		this.player = new Player(contentManager.imgPlayer, this.physics);
 		this.player.isIdle = true;
 		this.player.gotoAndPlay("stand");
 		this.player.x = FIELD_WIDTH / 2;
@@ -37,8 +33,6 @@
 
 		this.stage.addChild(this.player);
 	}
-
-
 
 
 	// 物理世界のオブジェクトの取得

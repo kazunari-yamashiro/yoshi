@@ -50,7 +50,6 @@ var b2Listener    = Box2D.Dynamics.b2ContactListener;
 				fixture.shape.SetAsBox(skin.width / SCALE / 2, skin.height / SCALE / 2);
 
 				// filter
-				// filter
 				//fixture.filter.categoryBits = 0x0002;
 				fixture.filter.maskBits     = 0x0001;
 				//fixture.filter.groupIndex   = 0x0032;
@@ -87,7 +86,7 @@ var b2Listener    = Box2D.Dynamics.b2ContactListener;
 					this.prevYv = this.body.GetLinearVelocity().y;
 					if(this.prevYv === 0) {
 						this.prevYvCount++;
-						if(this.prevYvCount > 1) {
+						if(this.prevYvCount >= 1) {
 							this.prevYvCount = 0;
 							Yoshi.y_prev = null;
 							Yoshi.stopJumping = false;
@@ -170,25 +169,6 @@ var b2Listener    = Box2D.Dynamics.b2ContactListener;
 				//actors.push(actor);
 			}
 		
-		
-			var createBird = function(skin) {
-				var birdFixture = new b2FixtureDef;
-				birdFixture.density = 1;
-				birdFixture.restitution = 0;
-				birdFixture.shape = new b2CircleShape(24 / SCALE);
-				var birdBodyDef = new b2BodyDef;
-				birdBodyDef.type = b2Body.b2_dynamicBody;
-				birdBodyDef.position.x = skin.x / SCALE;
-				birdBodyDef.position.y = skin.y / SCALE;
-				var bird = world.CreateBody(birdBodyDef);
-				bird.CreateFixture(birdFixture);
-		
-				// assign actor
-				var actor = new actorObject(bird, skin);
-				bird.SetUserData(actor);
-				bodies.push(bird);
-			}
-		
 			var update = function () {
 				world.Step(TIMESTEP, 10, 10);
 		
@@ -232,43 +212,38 @@ var b2Listener    = Box2D.Dynamics.b2ContactListener;
 
 
 
-// --- block --- //
-var createBlocks = function(startX, startY, blockNum)
-{
-	// images size is 40x32
-	var blockWidth = 40;
-	var blockHeight = 40;
-
-	var blocks = new createjs.Container();
-
-	blocks.width  = blockWidth * blockNum;
-	blocks.height = blockHeight;
-	blocks.x = startX;
-	blocks.y = startY;
-
-	// 指定された数のブロックを横に並べて作成
-	for(var i = 0; i < blockNum; i++) {
-		var bmp = new createjs.Bitmap("img/Tiles/BlockA0.png");
-		bmp.x = blockWidth * i;
-		//bmp.y = startY;	
+		// --- block --- //
+		var createBlocks = function(startX, startY, blockNum)
+		{
+			// images size is 40x32
+			var blockWidth = 40;
+			var blockHeight = 40;
 		
-		blocks.addChild(bmp);
-	}
-
-	// 当たり判定オブジェクトを作成
-	box2d.createStaticObject(blocks);
-
-	// 作成が終わったらステージに適応
-	stage.addChild(blocks);
-}
-
-
-
-
+			var blocks = new createjs.Container();
+		
+			blocks.width  = blockWidth * blockNum;
+			blocks.height = blockHeight;
+			blocks.x = startX;
+			blocks.y = startY;
+		
+			// 指定された数のブロックを横に並べて作成
+			for(var i = 0; i < blockNum; i++) {
+				var bmp = new createjs.Bitmap("img/Tiles/BlockA0.png");
+				bmp.x = blockWidth * i;
+				//bmp.y = startY;	
+				
+				blocks.addChild(bmp);
+			}
+		
+			// 当たり判定オブジェクトを作成
+			box2d.createStaticObject(blocks);
+		
+			// 作成が終わったらステージに適応
+			stage.addChild(blocks);
+		}
 
 			return {
 				setup: setup,
-				createBird: createBird,
 				createPlayer: createPlayer,
 				createStaticObject: createStaticObject,
 				update: update,
